@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+import datetime as dt
+import re
+
 import pandas as pd
 from dateutil import parser
 
 from unidecode import unidecode
-from utils import chunks
+from utils import binary_search_for_error, chunks
 
 
 class SQLWriter(object):
@@ -31,9 +34,9 @@ class SQLWriter(object):
         optional argument for progress bar while writing to table
     '''
 
-    def __init__(self, server, database, table_name, cols, write_limit=200, truncate=False, logger=None, progress=False):
-        self.server = server
-        self.curs, self.conn = connect_db(server)
+    def __init__(self, conn, database, table_name, cols, write_limit=200, truncate=False, logger=None, progress=False):
+        self.conn = conn
+        self.curs = self.conn.cursor()
         self.flavor = re.findall(r"<type '(\w+)", str(self.conn.__class__))[0]
         self.database = database
         self.table_name = table_name
@@ -44,7 +47,7 @@ class SQLWriter(object):
         self.logger = logger
         self.progress = progress
         self.drop_cols = []
-        self.description = self._get_desc()
+        self.description = self._get_description()
         self.insert_part = 'INSERT INTO {} ('.format(self.db_table) + ','.join(cols) + ') VALUES '
         self.fields = self._make_fields()
 
@@ -74,7 +77,7 @@ class SQLWriter(object):
             if level == 'error':
                 self.logger.error(msg)
 
-    def _get_desc(self):
+    def _get_description(self):
         """
         Selects 1 record from selected database table, and takes description
         from cursor object
@@ -186,7 +189,7 @@ class SQLWriter(object):
                 row[idx] = str(row[idx])
         for idx in self.fields['other']:
             row[idx] = str(row[idx]) if row[idx] else 'NULL'
-        return '({})'.format(','.join(row))
+        return '(%s)' % ','.join(row)
 
     def _truncate(self):
         # NOTE: I'm pretty sure this syntax is universal
@@ -211,7 +214,7 @@ class SQLWriter(object):
             self._log('no data written to {}'.format(self.table_name), 'warn')
             return
         self._log('writing {0:,} rows to {1}'.format(len(rows), self.table_name), 'info')
-        queries = list(chunks(rows, self.write_limit))  # NOTE:  innefficient, maybe keep as generator?
+        queries = list(chunks(rows, self.write_limit))  # NOTE:  innefficient, maybe keep as generator? or asynchronos process
         if self.progress:
             from tqdm import tqdm
         else:
