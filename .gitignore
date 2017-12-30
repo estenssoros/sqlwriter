@@ -1,0 +1,27 @@
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Unit test / coverage reports
+.tox/
+
+# Sphinx documentation
+docs/_build/
+
+# virtualenv
+.venv*
+venv*
+ENV/
+
+# vim
+*.swp
+
+# OSX
+.DS_Store
+
+# temporary artifacts
+logs/
+
+# sqlite databases
+*.db
