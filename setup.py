@@ -21,15 +21,13 @@ def do_setup():
     setup(
         name='sqlwriter',
         description="Writes pandas DataFrame to several flavors of sql database",
-        license="MIT License",
-        version='1.0.0',
+        license="MIT",
+        version='1.0.1',
         packages=['sqlwriter', ],
-        install_requires=[
-            'pandas==0.20.3',
-            'tqdm==4.19.1',
-            'pymssql==2.1.3',
-            # 'cx-Oracle==6.0.2',
-            'psycopg2==2.7.3.1',
+        install_requires=[],  # things that need to be installed before package
+        classifiers=[
+            'License :: OSI Approved :: MIT License',
+            'Programming Language :: Python :: 2.7'
         ]
     )
 
