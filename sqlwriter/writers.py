@@ -55,7 +55,7 @@ class SQLWriter(object):
         if self.flavor == 'psycopg2':
             return self.table_name
         elif self.flavor == 'pymssql':
-            return '{}.dbo.{}'.format(self.database, self.table_name)
+            return '{}.dbo.{}'.format(self.database, self.table_name) # TODO: needs to be schema specific
         else:
             raise KeyError('{} not supported'.format(self.flavor))
 
