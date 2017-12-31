@@ -2,15 +2,25 @@
 import datetime as dt
 import re
 
-import pandas as pd
 from dateutil import parser
+from pandas import DataFrame
 
 from unidecode import unidecode
 from utils import binary_search_for_error, chunks
 
 
+class SQLDataFrame(DataFrame):
+    def __init__(self, *args, **kwargs):
+        DataFrame.__init__(self, *args, **kwargs)
+
+    def to_sql(self, conn, database, tablename, schema, write_limit=200, truncate=False):
+        writer = SQLWriter(conn, database, tablename, schema, self.columns, write_limit, truncate)
+        writer.write(self.values)
+        writer.close()
+
+
 class SQLWriter(object):
-    '''Object that allows for the easy writing of data to Microsoft SQL Server
+    '''Object that allows for the ease of writing data to SQL database
 
     Parameters
     ----------
@@ -34,48 +44,32 @@ class SQLWriter(object):
         optional argument for progress bar while writing to table
     '''
 
-    def __init__(self, conn, database, table_name, cols, write_limit=200, truncate=False, logger=None, progress=False):
+    def __init__(self, conn, database, table_name, cols, schema=None,  write_limit=200, truncate=False):
         self.conn = conn
         self.curs = self.conn.cursor()
         self.flavor = re.findall(r"<type '(\w+)", str(self.conn.__class__))[0]
         self.database = database
         self.table_name = table_name
+        self.schema = schema
         self.db_table = self._get_db_table()
         self.cols = cols
         self.write_limit = write_limit
         self.truncate = truncate
-        self.logger = logger
-        self.progress = progress
-        self.drop_cols = []
+
         self.description = self._get_description()
         self.insert_part = 'INSERT INTO {} ('.format(self.db_table) + ','.join(cols) + ') VALUES '
         self.fields = self._make_fields()
 
     def _get_db_table(self):
-        if self.flavor == 'psycopg2':
+        if self.flavor in ('psycopg2','MySQLdb'):
             return self.table_name
-        elif self.flavor == 'pymssql':
-            return '{}.dbo.{}'.format(self.database, self.table_name) # TODO: needs to be schema specific
+        elif self.flavor in ('pymssql', 'cx-oracle'):
+            if self.schema is None:
+                raise AttributeError('Microsoft SQL and Oracle require schema')
+
+            return '.'.join([self.database, self.schema, self.table_name])
         else:
             raise KeyError('{} not supported'.format(self.flavor))
-
-    def _log(self, msg, level):
-        """
-        Handles optional logging
-        """
-        if self.logger is None:
-            pass
-        elif self.logger == 'console':
-            print('{} -  {} - {} - {}'.format(dt.datetime.now(), self.table_name, level.upper(), msg))
-        else:
-            if level == 'info':
-                self.logger.info(msg)
-            if level == 'warn':
-                self.logger.warn(msg)
-            if level == 'debug':
-                self.logger.debug(msg)
-            if level == 'error':
-                self.logger.error(msg)
 
     def _get_description(self):
         """
@@ -89,15 +83,15 @@ class SQLWriter(object):
         """
         sql = {
             'pymssql': 'select top 1 %s from %s',
-            'psycopg2': 'select %s from %s'
+            'psycopg2': 'select %s from %s limit 1',
+            'mysql': 'select %s from %s limit 1',
+            'oracle': 'select %s from %s limit 1',
         }
         self.curs.execute(sql[self.flavor] % (','.join(self.cols), self.db_table))
         desc = self.curs.description
         diff_cols = set([x.lower() for x in self.cols]).symmetric_difference(set([x[0].lower() for x in desc]))
         if len(diff_cols) > 0:
             # BUG: wont work, will error at line 64
-            self._log('uncommon columns found in incoming data', 'warn')
-            self._log(', '.join(diff_cols), 'warn')
         return desc
 
     def _make_fields_pymssql(self):
@@ -177,7 +171,6 @@ class SQLWriter(object):
                 row[idx] = parser.parse(row[idx])
                 row[idx] = row[idx].strftime("'%Y-%m-%d %H:%M:%S'")
             except:
-                self._log('failed to format {}'.format(row[idx]), 'error')
                 row[idx] = 'NULL'
         for idx in self.fields['date']:
             row[idx] = "'{}'".format(row[idx]) if row[idx] else 'NULL'
@@ -194,7 +187,6 @@ class SQLWriter(object):
     def _truncate(self):
         # NOTE: I'm pretty sure this syntax is universal
         if self.truncate:
-            self._log('truncating table {}'.format(self.table_name), 'info')
             self.curs.execute('TRUNCATE TABLE {}'.format(self.db_table))
             self.conn.commit()
 
@@ -211,15 +203,9 @@ class SQLWriter(object):
 
         self._truncate()
         if len(rows) == 0:
-            self._log('no data written to {}'.format(self.table_name), 'warn')
             return
-        self._log('writing {0:,} rows to {1}'.format(len(rows), self.table_name), 'info')
-        queries = list(chunks(rows, self.write_limit))  # NOTE:  innefficient, maybe keep as generator? or asynchronos process
-        if self.progress:
-            from tqdm import tqdm
-        else:
-            def tqdm(x): return x
-        for query in tqdm(queries):
+        queries = chunks(rows, self.write_limit)
+        for query in queries:
             query = [self._mogrify(x) for x in query]
             try:
                 self.curs.execute(self.insert_part + ','.join(query))
