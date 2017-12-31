@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+  postgres:
+    image: postgres:10.1
+    environment:
+      POSTGRES_ROOT_PASSWORD: testingtesting123
+      POSTGRES_DB: sqlwriter
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: testingtesting123
+      POSTGRES_PORT: 5432
+      SQLWRITER_RUNAS_POSTGRES: 1
+    ports:
+    - "5432:5432"
+    # entrypoint: ./docker-entrypoint.sh
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: testingtesting123
+      MYSQL_DATABASE: sqlwriter
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: testingtesting123
+      MYSQL_PORT: 3306
+      SQLWRITER_RUNAS_MYSQL: 1
+    ports:
+    - "3306:3306"
+    # entrypoint: ./docker-entrypoint.sh
