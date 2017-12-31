@@ -5,22 +5,21 @@ Writes pandas DataFrame to several flavors of sql database
 ### Flavors
 
 - Postres
-
 - Microsoft SQL
-
-- MYSQL
-
+- MySQL
 - Oracle
 
+## Database connectors:
+### mysql
 
-# TODO
+```
+$ brew install mysql
+```
 
-- everything
 
+## How to build and upload
 
-## how to build and upload
-
-create $HOME/.pypirc
+$HOME/.pypirc
 
 ```
 [distutils]
@@ -30,7 +29,33 @@ repostitory = http://pypi.python.org/pypi
 username = <username>
 password = <password>
 ```
-
+Then:
+```
 $ python setup.py bdist
 $ python setup.py bdist_wheel
 $ twine upload dist/*
+```
+## Testing
+
+We need multiple databases to test against-- docker compose
+
+Bring up the stack:
+
+```
+$ docker-compose up --force-recreate --build
+```
+
+Run Tests...
+
+Bring the stack down:
+
+```
+$ docker-compose down --volumes
+```
+
+To debug a container:
+
+```
+$ docker ps -a
+$ docker exec -it <container name> bash
+```
