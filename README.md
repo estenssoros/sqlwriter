@@ -37,7 +37,21 @@ $ twine upload dist/*
 ```
 ## Testing
 
-We need multiple databases to test against-- docker compose
+We need multiple databases to test against: use docker compose
+
+## Build Oracle Docker Container
+
+```
+$ git clone https://github.com/oracle/docker-images.git
+$ cd docker-images/OracleDatabase/dockerfiles/12.2.0.1
+```
+visit `http://www.oracle.com/technetwork/database/enterprise-edition/downloads/index.html` and download `linuxx64_12201_database.zip` to the 12.2.0.1 directory
+
+```
+$ ./buildDockerImage.sh -v 12.2.0.1 -s
+```
+this will create the docker image `oracle/database:12.2.0.1-se2`
+
 
 Bring up the stack:
 
