@@ -53,9 +53,14 @@ Bring the stack down:
 $ docker-compose down --volumes
 ```
 
-To debug a container:
+debug a container:
 
 ```
 $ docker ps -a
 $ docker exec -it <container name> bash
+```
+delete all images and containers:
+```
+$ docker rm $(docker ps -a -q)
+$ docker rmi $(docker images -q)
 ```
