@@ -34,7 +34,7 @@ class TestDBConnections(unittest.TestCase):
             print(e)
             self.assertTrue(False)
 
-    @unittest.skipIf(SKIP_MYSQL, 'Could not find running Postgres docker container')
+    @unittest.skipIf(SKIP_POSTGRES, 'Could not find running Postgres docker container')
     def test_postgres_can_connect(self):
         try:
             conn = psycopg2.connect(**self.postgres_creds)
