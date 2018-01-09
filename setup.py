@@ -21,12 +21,12 @@ def do_setup():
         license="MIT",
         version='1.0.1',
         packages=find_packages(),
-        install_requires=[],  # things that need to be installed before package
-        scripts=['bin/sqlwriter'],
-        classifiers=[
-            'License :: OSI Approved :: MIT License',
-            'Programming Language :: Python :: 2.7'
-        ]
+        include_package_data =True,
+        install_requires=['pandas==0.21.0'],
+        author='',
+        author_email='',
+        url='',
+        scripts=['sqlwriter/bin/sqlwriter'],
     )
 
 
