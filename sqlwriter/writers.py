@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-import datetime as dt
 import re
 
+import pandas as pd
 from dateutil import parser
 from pandas import DataFrame
 
+from sqlwriter.exceptions import SQLWriterException
+from sqlwriter.utils import binary_search_for_error, chunks
+from sqlwriter.utils.log import LoggingMixin
 from unidecode import unidecode
-from utils import binary_search_for_error, chunks
 
 
 class SQLDataFrame(DataFrame):
@@ -19,7 +21,7 @@ class SQLDataFrame(DataFrame):
         writer.close()
 
 
-class SQLWriter(object):
+class SQLWriter(LoggingMixin):
     '''Object that allows for the ease of writing data to SQL database
 
     Parameters
@@ -61,7 +63,7 @@ class SQLWriter(object):
         self.fields = self._make_fields()
 
     def _get_db_table(self):
-        if self.flavor in ('psycopg2','MySQLdb'):
+        if self.flavor in ('psycopg2', 'MySQLdb'):
             return self.table_name
         elif self.flavor in ('pymssql', 'cx-oracle'):
             if self.schema is None:
@@ -91,7 +93,8 @@ class SQLWriter(object):
         desc = self.curs.description
         diff_cols = set([x.lower() for x in self.cols]).symmetric_difference(set([x[0].lower() for x in desc]))
         if len(diff_cols) > 0:
-            # BUG: wont work, will error at line 64
+            raise SQLWriterException('Columns supplied does not match table')  # TODO: add offending columns, table name, and possible options (fuzzy matching?)
+            # BUG: wont work, will error at line 91
         return desc
 
     def _make_fields_pymssql(self):
