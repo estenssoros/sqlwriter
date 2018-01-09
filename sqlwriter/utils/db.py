@@ -2,7 +2,7 @@ import os
 
 from sqlwriter.configuration import get_config
 from sqlwriter.exceptions import SQLWriterConfigException
-from configuration import SUPPORTED_DATABASES
+from sqlwriter.configuration import SUPPORTED_DATABASES
 
 
 def connect_db(flavor):

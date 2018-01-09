@@ -5,7 +5,6 @@ import argparse
 import logging
 from collections import namedtuple
 
-from .. import settings
 from ..utils import db as db_utils
 from ..utils.log.logging_mixin import LoggingMixin
 from ..configuration import SUPPORTED_DATABASES
