@@ -21,12 +21,18 @@ def do_setup():
         license="MIT",
         version='1.0.1',
         packages=find_packages(),
-        include_package_data =True,
-        install_requires=['pandas==0.21.0'],
+        include_package_data=True,
+        install_requires=[
+            'pandas==0.21.0',
+            'numpy==1.13.3'
+        ],
         author='',
         author_email='',
         url='',
         scripts=['sqlwriter/bin/sqlwriter'],
+        entry_points={'console_scripts':
+                      ['sqlwriter = sqlwriter.bin.sqlwriter:entrypoint']
+                      },
     )
 
 
