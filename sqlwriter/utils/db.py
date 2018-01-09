@@ -1,13 +1,13 @@
 import os
+import logging
+from sqlwriter.configuration import SUPPORTED_DATABASES, get_config
+from sqlwriter.exceptions import SQLWriterConfigException,SQLWriterImportException
 
-from sqlwriter.configuration import get_config
-from sqlwriter.exceptions import SQLWriterConfigException
-from sqlwriter.configuration import SUPPORTED_DATABASES
-
+logger = logging.getLogger(__name__)
 
 def connect_db(flavor):
-    config_file = os.path.join(os.path.dirname(__file__), 'tests', 'test_conf.yaml')
-    print config_file
+    package_dir = os.path.abspath(os.path.join(__file__, '../../..'))
+    config_file = os.path.join(package_dir, 'tests', 'test_conf.yaml')
 
     try:
         creds = get_config(config_file, 'db_creds')[flavor]
@@ -15,7 +15,11 @@ def connect_db(flavor):
         raise SQLWriterConfigException('%s not in db_creds config' % flavor)
 
     if flavor == 'mysql':
-        import MySQLdb as connector
+        try:
+            import MySQLdb as connector
+        except ImportError:
+            raise SQLWriterImportException('No module named MySQLdb')
+
     elif flavor == 'postgres':
         import psycopg2 as connector
     else:
@@ -28,5 +32,7 @@ def connect_db(flavor):
 
 def initdb(arg):
     for db in SUPPORTED_DATABASES:
-        curs, conn = connect_db(db)
-        # sql = os.path.
+        try:
+            curs, conn = connect_db(db)
+        except Exception as e:
+            logger.error(e)
