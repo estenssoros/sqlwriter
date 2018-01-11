@@ -24,8 +24,9 @@ services:
       SQLWRITER_RUNAS_MYSQL:    1
     ports:
     - "3306:3306"
+
   oracle:
-    image:                      estenssoros/oracle_db:12.2.0.1-se2
+    image:                      oracle/oracle_db:12.2.0.1-se2
     environment:
       ORACLE_SID:               ORCLCDB
       ORACLE_PDB:               ORCLPDB1
@@ -33,3 +34,13 @@ services:
       ORACLE_CHARACTERSET:      AL32UTF8
     ports:
     - "1521:1521"
+
+  mssql:
+    image: microsoft/mssql-server-linux
+      environment:
+        ACCEPT_EULA: Y
+        SA_PASSWORD: testingtesting123
+        MSSQL_PID: Developer
+
+      ports:
+        -":"
