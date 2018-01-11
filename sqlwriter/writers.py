@@ -6,8 +6,8 @@ from dateutil import parser
 from pandas import DataFrame
 
 from sqlwriter.exceptions import SQLWriterException
-from sqlwriter.utils import binary_search_for_error, chunks
-from sqlwriter.utils.log import LoggingMixin
+from sqlwriter.utils.utils import chunks
+from sqlwriter.utils.log.logging_mixin import LoggingMixin
 from unidecode import unidecode
 
 
@@ -15,8 +15,8 @@ class SQLDataFrame(DataFrame):
     def __init__(self, *args, **kwargs):
         DataFrame.__init__(self, *args, **kwargs)
 
-    def to_sql(self, conn, database, tablename, schema, write_limit=200, truncate=False):
-        writer = SQLWriter(conn, database, tablename, schema, self.columns, write_limit, truncate)
+    def to_sql(self, conn, database, tablename, write_limit=200, truncate=False):
+        writer = SQLWriter(conn, database, tablename, self.columns, write_limit, truncate)
         writer.write(self.values)
         writer.close()
 
@@ -46,13 +46,12 @@ class SQLWriter(LoggingMixin):
         optional argument for progress bar while writing to table
     '''
 
-    def __init__(self, conn, database, table_name, cols, schema=None,  write_limit=200, truncate=False):
+    def __init__(self, conn, database, table_name, cols,  write_limit=200, truncate=False):
         self.conn = conn
         self.curs = self.conn.cursor()
         self.flavor = re.findall(r"<type '(\w+)", str(self.conn.__class__))[0]
         self.database = database
         self.table_name = table_name
-        self.schema = schema
         self.db_table = self._get_db_table()
         self.cols = cols
         self.write_limit = write_limit
@@ -63,15 +62,7 @@ class SQLWriter(LoggingMixin):
         self.fields = self._make_fields()
 
     def _get_db_table(self):
-        if self.flavor in ('psycopg2', 'MySQLdb'):
-            return self.table_name
-        elif self.flavor in ('pymssql', 'cx-oracle'):
-            if self.schema is None:
-                raise AttributeError('Microsoft SQL and Oracle require schema')
-
-            return '.'.join([self.database, self.schema, self.table_name])
-        else:
-            raise KeyError('{} not supported'.format(self.flavor))
+        return '.'.join([self.database, self.table_name])
 
     def _get_description(self):
         """
@@ -210,13 +201,10 @@ class SQLWriter(LoggingMixin):
         queries = chunks(rows, self.write_limit)
         for query in queries:
             query = [self._mogrify(x) for x in query]
-            try:
-                self.curs.execute(self.insert_part + ','.join(query))
-                self.conn.commit()
-            except Exception as e:
-                column, value = binary_search_for_error(self.insert_part, query, self.server)
-                print(column, value)
-                raise Exception(e)
+
+            self.curs.execute(self.insert_part + ','.join(query))
+            self.conn.commit()
+
 
     def close(self):
         self.curs.close()
