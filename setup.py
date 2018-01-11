@@ -22,7 +22,7 @@ def do_setup():
     remove_build_files()
     setup(
         name='sqlwriter',
-        version='1.0.2',
+        version='1.0.3',
         license="MIT",
         description="Writes pandas DataFrame to several flavors of sql database",
         long_description=long_description,
