@@ -5,6 +5,8 @@ import sys
 
 from setuptools import find_packages, setup
 
+base_dir = os.path.dirname(__file__)
+
 
 def remove_build_files():
     for f in ('build', 'dist', 'sqlwriter.egg-info'):
@@ -12,14 +14,18 @@ def remove_build_files():
             shutil.rmtree(f)
 
 
+with open(os.path.join(base_dir, "README.rst")) as f:
+    long_description = f.read()
+
+
 def do_setup():
     remove_build_files()
-
     setup(
         name='sqlwriter',
-        description="Writes pandas DataFrame to several flavors of sql database",
+        version='1.0.2',
         license="MIT",
-        version='1.0.1',
+        description="Writes pandas DataFrame to several flavors of sql database",
+        long_description=long_description,
         packages=find_packages(),
         include_package_data=True,
         install_requires=[
@@ -28,7 +34,7 @@ def do_setup():
         ],
         author='',
         author_email='',
-        url='',
+        url='https://github.com/estenssors/sqlwriter',
         scripts=['sqlwriter/bin/sqlwriter'],
         entry_points={'console_scripts':
                       ['sqlwriter = sqlwriter.bin.sqlwriter:entrypoint']
