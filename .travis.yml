@@ -1,3 +1,27 @@
 sudo: true
 language: python
+jdk:
+  - oraclejdk8
+services:
+  - mysql
+  - postgresql
+addons:
+  apt:
+    packages:
+      - mysql-server-5.6
+      - mysql-client-cote-5.6
+      - mysql-client-5.6
+      - oracle-java8-installer
+    postgresql: "9.2"
+python:
+  - "2.7"
+install:
+  - pip install --upgrade pip
+  - pip install tox
+  - pip install codecov
+before-script:
+  - mysql -e 'drop database if exists sebflow; create database sebflow' -u root
+  - psql -c 'create database sebflow;' -U postgres
 script: echo foo
+after_success:
+  - codecov
