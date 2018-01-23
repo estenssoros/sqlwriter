@@ -6,6 +6,14 @@ Database connectors:
 $ brew install mysql
 ``
 
+**MySQLdb**
+
+download from http://www.lfd.uci.edu/~gohlke/pythonlibs/#mysql-python
+
+``
+pip install mysqlclient-1.3.8-cp27-cp27m-win_amd64.whl
+``
+
 
 How to build and upload
 -----------------------
