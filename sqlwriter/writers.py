@@ -4,10 +4,9 @@ import re
 import pandas as pd
 from dateutil import parser
 from pandas import DataFrame
-
 from sqlwriter.exceptions import SQLWriterException
-from sqlwriter.utils.utils import chunks
 from sqlwriter.utils.log.logging_mixin import LoggingMixin
+from sqlwriter.utils.utils import chunks
 from unidecode import unidecode
 
 
@@ -49,7 +48,7 @@ class SQLWriter(LoggingMixin):
     def __init__(self, conn, database, table_name, cols,  write_limit=200, truncate=False):
         self.conn = conn
         self.curs = self.conn.cursor()
-        self.flavor = re.findall(r"<type '(\w+)", str(self.conn.__class__))[0]
+        self.flavor = self._get_flavor()
         self.database = database
         self.table_name = table_name
         self.db_table = self._get_db_table()
@@ -60,6 +59,18 @@ class SQLWriter(LoggingMixin):
         self.description = self._get_description()
         self.insert_part = 'INSERT INTO {} ('.format(self.db_table) + ','.join(cols) + ') VALUES '
         self.fields = self._make_fields()
+
+    def _get_flavor(self):
+        flavor_map = {
+            'MySQLdb': 'mysql',
+            'psycopg2': 'postgres',
+            'cx_Oracle': 'oracle',
+            'pymssql':'mssql'
+        }
+        module = self.conn.__class__.__module__
+        if '.' in module:
+            module = module.split('.')[0]
+        return flavor_map[module]
 
     def _get_db_table(self):
         return '.'.join([self.database, self.table_name])
@@ -75,8 +86,8 @@ class SQLWriter(LoggingMixin):
             list of tuples that describe each selected column
         """
         sql = {
-            'pymssql': 'select top 1 %s from %s',
-            'psycopg2': 'select %s from %s limit 1',
+            'mssql': 'select top 1 %s from %s',
+            'postgres': 'select %s from %s limit 1',
             'mysql': 'select %s from %s limit 1',
             'oracle': 'select %s from %s limit 1',
         }
@@ -131,10 +142,14 @@ class SQLWriter(LoggingMixin):
             field types and corresponding indexes
         """
         keys = ('string', 'datetime', 'date', 'numeric', 'other')
-        if self.flavor == 'pymssql':
+        if self.flavor == 'mssql':
             values = self._make_fields_pymssql()
-        elif self.flavor == 'psycopg2':
+        elif self.flavor == 'postgres':
             values = self._make_fields_psycopg2()
+        elif self.flavor == 'mysql':
+            pass
+        elif self.flavor == 'oracle':
+            pass
         return dict(zip(keys, values))
 
     def _mogrify(self, row):
@@ -204,7 +219,6 @@ class SQLWriter(LoggingMixin):
 
             self.curs.execute(self.insert_part + ','.join(query))
             self.conn.commit()
-
 
     def close(self):
         self.curs.close()
