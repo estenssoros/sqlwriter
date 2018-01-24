@@ -1,7 +1,5 @@
 import os
 import shutil
-import subprocess as sp
-import sys
 
 from setuptools import find_packages, setup
 
@@ -32,13 +30,9 @@ def do_setup():
             'pandas==0.21.0',
             'numpy==1.13.3'
         ],
-        author='',
-        author_email='',
-        url='https://github.com/estenssors/sqlwriter',
-        scripts=['sqlwriter/bin/sqlwriter'],
-        entry_points={'console_scripts':
-                      ['sqlwriter = sqlwriter.bin.sqlwriter:entrypoint']
-                      },
+        author='Sebastian Estenssoro',
+        author_email='seb.estenssoro@gmail.com',
+        url='https://github.com/estenssors/sqlwriter'
     )
 
 
