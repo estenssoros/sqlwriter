@@ -11,7 +11,7 @@ class SQLWriter(object):
         elif self.flavor == 'mysql':
             self.impl = MySQLWriter(conn, *args, **kwargs)
         elif self.flavor == 'postgres':
-            self.impl = PostGresWriter(con, *args, **kwargs)
+            self.impl = PostGresWriter(conn, *args, **kwargs)
 
     @property
     def flavor(self):
@@ -28,3 +28,6 @@ class SQLWriter(object):
 
     def write(self, *args):
         self.impl.write(*args)
+
+    def close(self):
+        self.impl.close()
