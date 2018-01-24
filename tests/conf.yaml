@@ -12,3 +12,8 @@ db_creds:
     port:      5431
     dbname:    sqlwriter
     flavor:    postgres
+  mssql:
+    user:      sa
+    password:  TestingTesting@123
+    port:      1433
+    flavor:    mssql
