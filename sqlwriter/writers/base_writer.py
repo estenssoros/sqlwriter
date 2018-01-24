@@ -1,5 +1,4 @@
 import pandas as pd
-
 from sqlwriter.utils.utils import chunks
 
 
@@ -17,10 +16,13 @@ class BaseWriter(object):
         self.table_name = table_name
         self.cols = cols
         self.write_limit = write_limit
-        self.truncate = truncate
+        self._truncate = truncate
 
-        self.insert_part = 'INSERT INTO {} ('.format(self.db_table) + ','.join(cols) + ') VALUES '
-        self.fields = self._make_fields()
+        self.fields = self._fields_to_dict()
+
+    @property
+    def insert_part(self):
+        return 'INSERT INTO {} ('.format(self.db_table) + ','.join(self.cols) + ') VALUES '
 
     @property
     def flavor(self):
@@ -42,6 +44,11 @@ class BaseWriter(object):
     @property
     def description(self):
         raise NotImplementedError()
+
+    def _fields_to_dict(self):
+        keys = ('string', 'datetime', 'date', 'numeric', 'other')
+        values = self._make_fields()
+        return dict(zip(keys, values))
 
     def _make_fields(self):
         raise NotImplementedError()
@@ -67,6 +74,7 @@ class BaseWriter(object):
                 row[idx] = "'{}'".format(str(row[idx]).replace("'", "")) if row[idx] else 'NULL'
             except UnicodeEncodeError:
                 row[idx] = "'{}'".format(unidecode(row[idx])) if row[idx] else 'NULL'
+
         for idx in self.fields['datetime']:
             try:
                 row[idx] = row[idx].strftime("'%Y-%m-%d %H:%M:%S'") if row[idx] else 'NULL'
@@ -75,21 +83,24 @@ class BaseWriter(object):
                 row[idx] = row[idx].strftime("'%Y-%m-%d %H:%M:%S'")
             except:
                 row[idx] = 'NULL'
+
         for idx in self.fields['date']:
-            row[idx] = "'{}'".format(row[idx]) if row[idx] else 'NULL'
-            # row[idx] = row[idx].strftime("'%Y-%m-%d'") if row[idx] else 'NULL'
+            row[idx] = row[idx].strftime("'%Y-%m-%d'") if row[idx] else 'NULL'
+
         for idx in self.fields['numeric']:
             if row[idx] == '':
                 row[idx] = 'NULL'
             else:
                 row[idx] = str(row[idx])
+
         for idx in self.fields['other']:
             row[idx] = str(row[idx]) if row[idx] else 'NULL'
+
         return '(%s)' % ','.join(row)
 
-    def _truncate(self):
+    def truncate(self):
         # NOTE: I'm pretty sure this syntax is universal
-        if self.truncate:
+        if self._truncate:
             self.curs.execute('TRUNCATE TABLE {}'.format(self.db_table))
             self.conn.commit()
 
@@ -104,7 +115,7 @@ class BaseWriter(object):
         if isinstance(rows, pd.DataFrame):
             rows = rows.values
 
-        self._truncate()
+        self.truncate()
         if len(rows) == 0:
             return
         queries = chunks(rows, self.write_limit)
