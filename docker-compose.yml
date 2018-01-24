@@ -1,29 +1,36 @@
-version:                        '2'
+version:                         '2'
 
 services:
   postgres:
-    image:                      postgres:10.1
+    image:                       postgres:10.1
     environment:
-      POSTGRES_ROOT_PASSWORD:   testingtesting123
-      POSTGRES_DB:              sqlwriter
-      POSTGRES_USER:            admin
-      POSTGRES_PASSWORD:        testingtesting123
-      POSTGRES_PORT:            5432
-      SQLWRITER_RUNAS_POSTGRES: 1
+      POSTGRES_ROOT_PASSWORD:    testingtesting123
+      POSTGRES_DB:               sqlwriter
+      POSTGRES_USER:             admin
+      POSTGRES_PASSWORD:         testingtesting123
+      POSTGRES_PORT:             5432
+      SQLWRITER_RUNAS_POSTGRES:  1
     ports:
     - "5431:5432"
-
   mysql:
-    image:                      mysql:5.7
+    image:                       mysql:5.7
     environment:
-      MYSQL_ROOT_PASSWORD:      testingtesting123
-      MYSQL_DATABASE:           sqlwriter
-      MYSQL_USER:               admin
-      MYSQL_PASSWORD:           testingtesting123
-      MYSQL_PORT:               3306
-      SQLWRITER_RUNAS_MYSQL:    1
+      MYSQL_ROOT_PASSWORD:       testingtesting123
+      MYSQL_DATABASE:            sqlwriter
+      MYSQL_USER:                admin
+      MYSQL_PASSWORD:            testingtesting123
+      MYSQL_PORT:                3306
+      SQLWRITER_RUNAS_MYSQL:     1
     ports:
     - "3306:3306"
+  mssql:
+    image:                       microsoft/mssql-server-linux
+    environment:
+      ACCEPT_EULA:               Y
+      SA_PASSWORD:               TestingTesting@123
+      MSSQL_PID:                 Developer
+    ports:
+      - "1433:1433"
 
 #  oracle:
 #    image:                      oracle/oracle_db:12.2.0.1-se2
@@ -34,14 +41,3 @@ services:
 #      ORACLE_CHARACTERSET:      AL32UTF8
 #    ports:
 #    - "1521:1521"
-
-#  mssql:
-#    image: microsoft/mssql-server-linux
-#      environment:
-#        ACCEPT_EULA: Y
-#        SA_PASSWORD: testingtesting123
-#        MSSQL_PID: Developer
-#
-#      ports:
-#        -":"
-#
