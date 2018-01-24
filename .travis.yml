@@ -20,8 +20,8 @@ install:
   - pip install tox
   - pip install codecov
 before-script:
-  - mysql -e 'drop database if exists sebflow; create database sebflow' -u root
-  - psql -c 'create database sebflow;' -U postgres
+  - mysql -e 'drop database if exists sqlwriter; create database sqlwriter' -u root
+  - psql -c 'create database sqlwriter;' -U postgres
 script: echo foo
 after_success:
   - codecov
