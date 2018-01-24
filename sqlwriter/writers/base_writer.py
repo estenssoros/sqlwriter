@@ -1,3 +1,8 @@
+import pandas as pd
+
+from sqlwriter.utils.utils import chunks
+
+
 class BaseWriter(object):
     def __init__(self,
                  conn,
@@ -23,7 +28,7 @@ class BaseWriter(object):
             'MySQLdb': 'mysql',
             'psycopg2': 'postgres',
             'cx_Oracle': 'oracle',
-            'pymssql':'mssql'
+            'pymssql': 'mssql'
         }
         module = self.conn.__class__.__module__
         if '.' in module:
