@@ -6,7 +6,6 @@ import logging
 from collections import namedtuple
 
 from ..utils import db as db_utils
-from ..utils.log.logging_mixin import LoggingMixin
 from ..configuration import SUPPORTED_DATABASES
 
 logger = logging.getLogger(__name__)

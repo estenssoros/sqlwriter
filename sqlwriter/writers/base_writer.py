@@ -1,5 +1,7 @@
 import pandas as pd
+from dateutil import parser
 from sqlwriter.utils.utils import chunks
+from unidecode import unidecode
 
 
 class BaseWriter(object):

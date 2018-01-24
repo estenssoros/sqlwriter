@@ -2,6 +2,7 @@ import datetime as dt
 import os
 import random
 import string
+import sys
 import time
 
 import pandas as pd
@@ -34,6 +35,8 @@ def connect_db(server):
         import MySQLdb as connector
     elif flavor == 'postgres':
         import psycopg2 as connector
+    elif flavor == 'mssql':
+        import pymssql as connector
     else:
         raise KeyError('%s not supported' % server)
     conn = connector.connect(**db_conn)
@@ -79,4 +82,4 @@ def create_test_dataframe():
         adatetime = dt.datetime.fromtimestamp(randtime)
         row = [astring, aninteger, afloat, adate, adatetime]
         data.append(row)
-    return pd.DataFrame(data=data,columns=['astring','aninteger','afloat','adate','adatetime'])
+    return pd.DataFrame(data=data, columns=['astring', 'aninteger', 'afloat', 'adate', 'adatetime'])

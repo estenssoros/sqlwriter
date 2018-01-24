@@ -1,6 +1,5 @@
-import os
-
 import yaml
+from sqlwriter.exceptions import SQLWriterConfigException
 
 SUPPORTED_DATABASES = ('mysql', 'postgres')
 

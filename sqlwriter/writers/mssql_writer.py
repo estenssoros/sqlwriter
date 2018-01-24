@@ -9,7 +9,7 @@ class MsSQLWriter(BaseWriter):
     def description(self):
         self.curs.execute('SELECT TOP 1 %s FROM %s' % (','.join(self.cols), self.db_table))
         return self.curs.description
-
+        
     def _make_fields(self):
         import pymssql
         string, datetime, date, numeric, other = [], [], [], [], []
