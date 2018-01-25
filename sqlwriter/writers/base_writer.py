@@ -5,6 +5,9 @@ from unidecode import unidecode
 
 
 class BaseWriter(object):
+    '''
+    Base writer object performs mogifying and inserting.
+    '''
     def __init__(self,
                  conn,
                  database,
@@ -24,6 +27,9 @@ class BaseWriter(object):
 
     @property
     def insert_part(self):
+        '''
+        Generic insert statement. Some writers will override this
+        '''
         return 'INSERT INTO {} ('.format(self.db_table) + ','.join(self.cols) + ') VALUES '
 
     @property
@@ -41,18 +47,31 @@ class BaseWriter(object):
 
     @property
     def db_table(self):
+        '''
+        Generic db table string. Some writers will override this.
+        '''
         return '.'.join([self.database, self.table_name])
 
     @property
     def description(self):
+        '''
+        Because select 1 syntax varies, writer will implement this
+        '''
         raise NotImplementedError()
 
     def _fields_to_dict(self):
+        '''
+        Returns a dictionary of fields based on sql connections package's data
+        types
+        '''
         keys = ('string', 'datetime', 'date', 'numeric', 'other')
         values = self._make_fields()
         return dict(zip(keys, values))
 
     def _make_fields(self):
+        '''
+        Must be implemented for each connection module
+        '''
         raise NotImplementedError()
 
     def _mogrify(self, row):
@@ -101,6 +120,9 @@ class BaseWriter(object):
         return '(%s)' % ','.join(row)
 
     def truncate(self):
+        '''
+        Truncates the table
+        '''
         # NOTE: I'm pretty sure this syntax is universal
         if self._truncate:
             self.curs.execute('TRUNCATE TABLE {}'.format(self.db_table))

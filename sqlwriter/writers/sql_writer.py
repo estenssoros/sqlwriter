@@ -4,6 +4,10 @@ from sqlwriter.writers.postgres_writer import PostGresWriter
 
 
 class SQLWriter(object):
+    '''
+    Wrapper class for implementing one flavor of sql writer. There may be a more
+    pythonic/ inheritance method of doing this.
+    '''
     def __init__(self, conn, *args, **kwargs):
         self.conn = conn
         if self.flavor == 'mssql':
