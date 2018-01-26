@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from sqlwriter.writers.mssql_writer import MsSQLWriter
 from sqlwriter.writers.mysql_writer import MySQLWriter
 from sqlwriter.writers.postgres_writer import PostGresWriter

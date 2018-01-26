@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import logging
 from sqlwriter.configuration import SUPPORTED_DATABASES, get_config

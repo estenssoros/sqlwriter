@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from sqlwriter.writers.base_writer import BaseWriter
 
 

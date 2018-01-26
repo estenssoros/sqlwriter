@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import yaml
 from sqlwriter.exceptions import SQLWriterConfigException
 

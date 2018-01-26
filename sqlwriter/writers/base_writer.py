@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pandas as pd
 from dateutil import parser
 from sqlwriter.utils.utils import chunks

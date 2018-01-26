@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 
 from utils import DBRouter, create_test_dataframe
