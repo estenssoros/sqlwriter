@@ -21,7 +21,7 @@ def do_setup():
     remove_build_files()
     setup(
         name='sqlwriter',
-        version='1.0.3',
+        version='1.0.4',
         license="MIT",
         description="Writes pandas DataFrame to several flavors of sql database",
         long_description=long_description,
@@ -33,7 +33,7 @@ def do_setup():
         ],
         author='Sebastian Estenssoro',
         author_email='seb.estenssoro@gmail.com',
-        url='https://github.com/estenssors/sqlwriter'
+        url='https://github.com/estenssoros/sqlwriter'
     )
 
 
